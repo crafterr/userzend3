@@ -18,6 +18,11 @@ To create your new Zend Framework project:
 $ composer create-project -sdev zendframework/skeleton-application path/to/install
 ```
 
+
+```bash
+vendor/bin/doctrine-module orm:schema-tool:update -f
+```
+
 Once installed, you can test it out immediately using PHP's built-in web server:
 
 ```bash
