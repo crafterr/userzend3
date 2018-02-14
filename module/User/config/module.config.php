@@ -12,10 +12,10 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 return [
     'router' => [
         'routes' => [
-            'home' => [
+            'user' => [
                 'type' => Literal::class,
                 'options' => [
-                    'route'    => '/',
+                    'route'    => '/user',
                     'defaults' => [
                         'controller' => Controller\IndexController::class,
                         'action'     => 'index',

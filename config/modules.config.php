@@ -22,8 +22,9 @@ return [
     'Zend\Form',
     'Zend\Router',
     'Zend\Validator',
-    'Application',
     'User',
+    'Application',
+
     'DoctrineModule',
     'DoctrineORMModule',
 ];
