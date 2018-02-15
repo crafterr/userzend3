@@ -1,127 +1,149 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: adampietras
- * Date: 14/02/2018
- * Time: 21:37
- */
-
 namespace User\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * This class represents a registered user.
  * @ORM\Entity()
  * @ORM\Table(name="user")
  */
-class User
+class User 
 {
     // User status constants.
     const STATUS_ACTIVE       = 1; // Active user.
     const STATUS_RETIRED      = 2; // Retired user.
 
     /**
+     * @var int
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
 
-    /**
-     * @ORM\Column(name="email")
+    /** 
+     * @ORM\Column(name="email")  
      */
     protected $email;
-
-    /**
-     * @ORM\Column(name="full_name")
+    
+    /** 
+     * @ORM\Column(name="full_name")  
      */
     protected $fullName;
 
-    /**
-     * @ORM\Column(name="password")
+    /** 
+     * @ORM\Column(name="password")  
      */
     protected $password;
 
-    /**
-     * @ORM\Column(name="status")
+    /** 
+     * @ORM\Column(name="status")  
      */
     protected $status;
-
+    
     /**
-     * @ORM\Column(name="date_created")
+     * @ORM\Column(name="date_created")  
      */
     protected $dateCreated;
-
+        
     /**
-     * @ORM\Column(name="pwd_reset_token")
+     * @ORM\Column(name="pwd_reset_token", nullable=true)
      */
     protected $passwordResetToken;
-
+    
     /**
-     * @ORM\Column(name="pwd_reset_token_creation_date")
+     * @ORM\Column(name="pwd_reset_token_creation_date", nullable=true)
      */
     protected $passwordResetTokenCreationDate;
+    
+    /**
+     * @ORM\ManyToMany(targetEntity="User\Entity\Role")
+     * @ORM\JoinTable(name="user_role",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")}
+     *      )
+     */
+    private $roles;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="User\Entity\Application", inversedBy="users")
+     * @ORM\JoinTable(name="user_application",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="application_id", referencedColumnName="id")}
+     *      )
+     */
+    private $applications;
+    
+    /**
+     * Constructor.
+     */
+    public function __construct() 
+    {
+        $this->roles = new ArrayCollection();
+        $this->applications = new ArrayCollection();
+    }
+    
     /**
      * Returns user ID.
      * @return integer
      */
-    public function getId()
+    public function getId() 
     {
         return $this->id;
     }
 
     /**
-     * Sets user ID.
-     * @param int $id
+     * Sets user ID. 
+     * @param int $id    
      */
-    public function setId($id)
+    public function setId($id) 
     {
         $this->id = $id;
     }
 
     /**
-     * Returns email.
+     * Returns email.     
      * @return string
      */
-    public function getEmail()
+    public function getEmail() 
     {
         return $this->email;
     }
 
     /**
-     * Sets email.
+     * Sets email.     
      * @param string $email
      */
-    public function setEmail($email)
+    public function setEmail($email) 
     {
         $this->email = $email;
     }
-
+    
     /**
      * Returns full name.
-     * @return string
+     * @return string     
      */
-    public function getFullName()
+    public function getFullName() 
     {
         return $this->fullName;
-    }
+    }       
 
     /**
      * Sets full name.
      * @param string $fullName
      */
-    public function setFullName($fullName)
+    public function setFullName($fullName) 
     {
         $this->fullName = $fullName;
     }
-
+    
     /**
      * Returns status.
-     * @return int
+     * @return int     
      */
-    public function getStatus()
+    public function getStatus() 
     {
         return $this->status;
     }
@@ -130,14 +152,14 @@ class User
      * Returns possible statuses as array.
      * @return array
      */
-    public static function getStatusList()
+    public static function getStatusList() 
     {
         return [
             self::STATUS_ACTIVE => 'Active',
             self::STATUS_RETIRED => 'Retired'
         ];
-    }
-
+    }    
+    
     /**
      * Returns user status as string.
      * @return string
@@ -147,55 +169,55 @@ class User
         $list = self::getStatusList();
         if (isset($list[$this->status]))
             return $list[$this->status];
-
+        
         return 'Unknown';
-    }
-
+    }    
+    
     /**
      * Sets status.
-     * @param int $status
+     * @param int $status     
      */
-    public function setStatus($status)
+    public function setStatus($status) 
     {
         $this->status = $status;
-    }
-
+    }   
+    
     /**
      * Returns password.
      * @return string
      */
-    public function getPassword()
+    public function getPassword() 
     {
-        return $this->password;
+       return $this->password; 
     }
-
+    
     /**
-     * Sets password.
+     * Sets password.     
      * @param string $password
      */
-    public function setPassword($password)
+    public function setPassword($password) 
     {
         $this->password = $password;
     }
-
+    
     /**
      * Returns the date of user creation.
-     * @return string
+     * @return string     
      */
-    public function getDateCreated()
+    public function getDateCreated() 
     {
         return $this->dateCreated;
     }
-
+    
     /**
      * Sets the date when this user was created.
-     * @param string $dateCreated
+     * @param string $dateCreated     
      */
-    public function setDateCreated($dateCreated)
+    public function setDateCreated($dateCreated) 
     {
         $this->dateCreated = $dateCreated;
-    }
-
+    }    
+    
     /**
      * Returns password reset token.
      * @return string
@@ -204,16 +226,16 @@ class User
     {
         return $this->passwordResetToken;
     }
-
+    
     /**
      * Sets password reset token.
      * @param string $token
      */
-    public function setPasswordResetToken($token)
+    public function setPasswordResetToken($token) 
     {
         $this->passwordResetToken = $token;
     }
-
+    
     /**
      * Returns password reset token's creation date.
      * @return string
@@ -222,13 +244,73 @@ class User
     {
         return $this->passwordResetTokenCreationDate;
     }
-
+    
     /**
      * Sets password reset token's creation date.
      * @param string $date
      */
-    public function setPasswordResetTokenCreationDate($date)
+    public function setPasswordResetTokenCreationDate($date) 
     {
         $this->passwordResetTokenCreationDate = $date;
     }
+    
+    /**
+     * Returns the array of roles assigned to this user.
+     * @return array
+     */
+    public function getRoles()
+    {
+        return $this->roles;
+    }
+    
+    /**
+     * Returns the string of assigned role names.
+     */
+    public function getRolesAsString()
+    {
+        $roleList = '';
+        
+        $count = count($this->roles);
+        $i = 0;
+        foreach ($this->roles as $role) {
+            $roleList .= $role->getName();
+            if ($i<$count-1)
+                $roleList .= ', ';
+            $i++;
+        }
+        
+        return $roleList;
+    }
+    
+    /**
+     * Assigns a role to user.
+     */
+    public function addRole($role)
+    {
+        $this->roles->add($role);
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getApplications()
+    {
+        return $this->applications;
+    }
+
+    /**
+     * @param Application $application\
+     */
+    public function addApplication(Application $application)
+    {
+        $this->applications->add($application);
+    }
+
+    public function removeApplication(Application $application)
+    {
+        $this->applications->remove($application);
+    }
 }
+
+
+

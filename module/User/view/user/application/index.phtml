@@ -1,0 +1,64 @@
+<?php
+$this->headTitle('Users');
+
+$this->mainMenu()->setActiveItemId('users');
+
+$this->pageBreadcrumbs()->setItems([
+            'Home'=>$this->url('home'),
+            'Manage Users'=>$this->url('users'),
+            ]);
+?>
+
+<h1>Manage Users</h1>
+
+<p>
+<a class="btn btn-default" href="
+    <?= $this->url('users', ['action'=>'add']); ?>">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New User
+</a>
+</p>
+
+<table class="table table-striped">
+
+   <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Role(s)</th>        
+        <th>Date Created</th>
+        <th>Status</th>        
+        <th>Actions</th>        
+    </tr>
+    <?php foreach ($this->applications as $application): ?>
+
+    <tr>
+        <td><?= $this->escapeHtml($application->getId()); ?></td>
+        <td>
+            <a href="<?= $this->url('users', ['action'=>'view', 'id'=>$application->getId()]); ?>">
+                <?= $this->escapeHtml($application->getName()); ?>
+            </a> 
+        </td>
+        <td>
+            <?= $this->escapeHtml($application->getName()); ?></a>
+        </td>
+        <td>
+            <?= $this->escapeHtml($application->getDescription()); ?></a>
+        </td>
+        <td><nobr><?= $this->escapeHtml($application->getDateCreated()); ?></nobr></td>
+
+        <td>
+            <a class="btn btn-info" href="<?= $this->url('users', 
+                    ['action'=>'edit', 'id'=>$application->getId()]); ?>">
+                <span class="glyphicon glyphicon-pencil" ></span> Edit
+            </a>
+            <a class="btn btn-default" href="<?= $this->url('users',
+                    ['action'=>'change-password', 'id'=>$application->getId()]); ?>">
+                <span class="glyphicon glyphicon-asterisk"></span> Change Password
+            </a>
+        </td>    
+    </tr>
+        
+    <?php endforeach; ?>   
+    
+</table>
+

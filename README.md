@@ -1,228 +1,107 @@
-# ZendSkeletonApplication
+Role Demo Sample
+==================================================
 
-## Introduction
+This sample is based on *User Demo* sample. It shows how to:
 
-This is a skeleton application using the Zend Framework MVC layer and module
-systems. This application is meant to be used as a starting place for those
-looking to get their feet wet with Zend Framework.
+ * Implement roles and permissions in your website
+ * Organize roles in database into an hierarchy
+ * Use Zend\Permissions\Rbac component to implement role-based access control
+ * Use dynamic assertions to implement complex access control rules
 
-## Installation using Composer
+## Installation
 
-The easiest way to create a new Zend Framework project is to use
-[Composer](https://getcomposer.org/).  If you don't have it already installed,
-then please install as per the [documentation](https://getcomposer.org/doc/00-intro.md).
+You need to have Apache 2.4 HTTP server, PHP v.5.6 or later with `gd` and `intl` extensions, and MySQL 5.6 or later.
 
-To create your new Zend Framework project:
+Download the sample to some directory (it can be your home dir or `/var/www/html`) and run Composer as follows:
 
-```bash
-$ composer create-project -sdev zendframework/skeleton-application path/to/install
+```
+php composer.phar install
 ```
 
+The command above will install the dependencies (Zend Framework and Doctrine).
 
-```bash
-vendor/bin/doctrine-module orm:schema-tool:update -f
+Enable development mode:
+
+```
+php composer.phar development-enable
 ```
 
-Once installed, you can test it out immediately using PHP's built-in web server:
+Create the `data/cache` directory:
 
-```bash
-$ cd path/to/install
-$ php -S 0.0.0.0:8080 -t public/ public/index.php
-# OR use the composer alias:
-$ composer run --timeout 0 serve
+```
+mkdir data/cache
 ```
 
-This will start the cli-server on port 8080, and bind it to all network
-interfaces. You can then visit the site at http://localhost:8080/
-- which will bring up Zend Framework welcome page.
+Adjust permissions for `data` directory:
 
-**Note:** The built-in CLI server is *for development only*.
-
-## Development mode
-
-The skeleton ships with [zf-development-mode](https://github.com/zfcampus/zf-development-mode)
-by default, and provides three aliases for consuming the script it ships with:
-
-```bash
-$ composer development-enable  # enable development mode
-$ composer development-disable # disable development mode
-$ composer development-status  # whether or not development mode is enabled
+```
+sudo chown -R www-data:www-data data
+sudo chmod -R 775 data
 ```
 
-You may provide development-only modules and bootstrap-level configuration in
-`config/development.config.php.dist`, and development-only application
-configuration in `config/autoload/development.local.php.dist`. Enabling
-development mode will copy these files to versions removing the `.dist` suffix,
-while disabling development mode will remove those copies.
+Create `public/img/captcha` directory:
 
-Development mode is automatically enabled as part of the skeleton installation process. 
-After making changes to one of the above-mentioned `.dist` configuration files you will
-either need to disable then enable development mode for the changes to take effect,
-or manually make matching updates to the `.dist`-less copies of those files.
-
-## Running Unit Tests
-
-To run the supplied skeleton unit tests, you need to do one of the following:
-
-- During initial project creation, select to install the MVC testing support.
-- After initial project creation, install [zend-test](https://zendframework.github.io/zend-test/):
-
-  ```bash
-  $ composer require --dev zendframework/zend-test
-  ```
-
-Once testing support is present, you can run the tests using:
-
-```bash
-$ ./vendor/bin/phpunit
+```
+mkdir public/img/captcha
 ```
 
-If you need to make local modifications for the PHPUnit test setup, copy
-`phpunit.xml.dist` to `phpunit.xml` and edit the new file; the latter has
-precedence over the former when running tests, and is ignored by version
-control. (If you want to make the modifications permanent, edit the
-`phpunit.xml.dist` file.)
+Adjust permissions for `public/img/captcha` directory:
 
-## Using Vagrant
-
-This skeleton includes a `Vagrantfile` based on ubuntu 16.04 (bento box)
-with configured Apache2 and PHP 7.0. Start it up using:
-
-```bash
-$ vagrant up
+```
+sudo chown -R www-data:www-data public/img/captcha
+sudo chmod -R 775 public/img/captcha 
 ```
 
-Once built, you can also run composer within the box. For example, the following
-will install dependencies:
+Create `config/autoload/local.php` config file by copying its distrib version:
 
-```bash
-$ vagrant ssh -c 'composer install'
+```
+cp config/autoload/local.php.dist config/autoload/local.php
 ```
 
-While this will update them:
+Edit `config/autoload/local.php` and set database password parameter.
 
-```bash
-$ vagrant ssh -c 'composer update'
+Login to MySQL client:
+
+```
+mysql -u root -p
 ```
 
-While running, Vagrant maps your host port 8080 to port 80 on the virtual
-machine; you can visit the site at http://localhost:8080/
+Create database:
 
-> ### Vagrant and VirtualBox
->
-> The vagrant image is based on ubuntu/xenial64. If you are using VirtualBox as
-> a provider, you will need:
->
-> - Vagrant 1.8.5 or later
-> - VirtualBox 5.0.26 or later
-
-For vagrant documentation, please refer to [vagrantup.com](https://www.vagrantup.com/)
-
-## Using docker-compose
-
-This skeleton provides a `docker-compose.yml` for use with
-[docker-compose](https://docs.docker.com/compose/); it
-uses the `Dockerfile` provided as its base. Build and start the image using:
-
-```bash
-$ docker-compose up -d --build
+```
+CREATE DATABASE roledemo;
+GRANT ALL PRIVILEGES ON roledemo.* TO roledemo@localhost identified by '<your_password>';
+quit
 ```
 
-At this point, you can visit http://localhost:8080 to see the site running.
+Run database migrations to intialize database schema:
 
-You can also run composer from the image. The container environment is named
-"zf", so you will pass that value to `docker-compose run`:
-
-```bash
-$ docker-compose run zf composer install
+```
+./vendor/bin/doctrine-module migrations:migrate
 ```
 
-## Web server setup
+Then create an Apache virtual host. It should look like below:
 
-### Apache setup
-
-To setup apache, setup a virtual host to point to the public/ directory of the
-project and you should be ready to go! It should look something like below:
-
-```apache
+```
 <VirtualHost *:80>
-    ServerName zfapp.localhost
-    DocumentRoot /path/to/zfapp/public
-    <Directory /path/to/zfapp/public>
+    DocumentRoot /path/to/roledemo/public
+    
+    <Directory /path/to/roledemo/public/>
         DirectoryIndex index.php
         AllowOverride All
-        Order allow,deny
-        Allow from all
-        <IfModule mod_authz_core.c>
         Require all granted
-        </IfModule>
     </Directory>
+
 </VirtualHost>
 ```
 
-### Nginx setup
+Now you should be able to see the Role Demo website by visiting the link "http://localhost/". 
+ 
+## License
 
-To setup nginx, open your `/path/to/nginx/nginx.conf` and add an
-[include directive](http://nginx.org/en/docs/ngx_core_module.html#include) below
-into `http` block if it does not already exist:
+This code is provided under the [BSD-like license](https://en.wikipedia.org/wiki/BSD_licenses). 
 
-```nginx
-http {
-    # ...
-    include sites-enabled/*.conf;
-}
-```
+## Contributing
 
-
-Create a virtual host configuration file for your project under `/path/to/nginx/sites-enabled/zfapp.localhost.conf`
-it should look something like below:
-
-```nginx
-server {
-    listen       80;
-    server_name  zfapp.localhost;
-    root         /path/to/zfapp/public;
-
-    location / {
-        index index.php;
-        try_files $uri $uri/ @php;
-    }
-
-    location @php {
-        # Pass the PHP requests to FastCGI server (php-fpm) on 127.0.0.1:9000
-        fastcgi_pass   127.0.0.1:9000;
-        fastcgi_param  SCRIPT_FILENAME /path/to/zfapp/public/index.php;
-        include fastcgi_params;
-    }
-}
-```
-
-Restart the nginx, now you should be ready to go!
-
-## QA Tools
-
-The skeleton does not come with any QA tooling by default, but does ship with
-configuration for each of:
-
-- [phpcs](https://github.com/squizlabs/php_codesniffer)
-- [phpunit](https://phpunit.de)
-
-Additionally, it comes with some basic tests for the shipped
-`Application\Controller\IndexController`.
-
-If you want to add these QA tools, execute the following:
-
-```bash
-$ composer require --dev phpunit/phpunit squizlabs/php_codesniffer zendframework/zend-test
-```
-
-We provide aliases for each of these tools in the Composer configuration:
-
-```bash
-# Run CS checks:
-$ composer cs-check
-# Fix CS errors:
-$ composer cs-fix
-# Run PHPUnit tests:
-$ composer test
-```
+If you found a mistake or a bug, please report it using the [Issues](https://github.com/olegkrivtsov/using-zf3-book-samples/issues) page. 
+Your feedback is highly appreciated.
